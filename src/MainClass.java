@@ -27,7 +27,7 @@ public class MainClass extends GraphicsProgram implements ActionListener
     private boolean isSnake1Dead = false;
     private boolean isSnake2Dead = false;
     private int score1, score2;
-    Scoreboard scoreLabel = new Scoreboard("SCORE \n Snake#1: " + score1 + "\n Snake#2: " + score2, 10, 15);
+    Scoreboard scoreLabel = new Scoreboard("SCORE \n PINK: " + score1 + "\n BLUE: " + score2, 10, 15);
     private GLabel instructions;
 
     /* these boolean values:
@@ -195,7 +195,8 @@ public class MainClass extends GraphicsProgram implements ActionListener
                 score1++;
                 updateScoreboard();
             }
-            if (hitsEitherSnake(snakeBody1, snakeBody2) || hitsEitherSnake(snakeBody1, snakeBody1) || hitsWall(snakeBody1)){
+            if (hitsWall(snakeBody1) || hitsEitherSnake(snakeBody1, snakeBody2)){
+                System.out.println("SNAKE#1 DIES");
                 isSnake1Dead = true;
                 snakeDies(snakeBody1);
             }
@@ -230,7 +231,8 @@ public class MainClass extends GraphicsProgram implements ActionListener
                 score2++;
                 updateScoreboard();
             }
-            if (hitsEitherSnake(snakeBody2, snakeBody1) || hitsEitherSnake(snakeBody2, snakeBody2) || hitsWall(snakeBody2)){
+            if (hitsWall(snakeBody2) || hitsEitherSnake(snakeBody2, snakeBody1)){
+                System.out.println("SNAKE#2 DIES");
                 isSnake2Dead = true;
                 snakeDies(snakeBody2);
             }
@@ -252,7 +254,7 @@ public class MainClass extends GraphicsProgram implements ActionListener
                 moveRight(snakeBody2);
                 System.out.println("2 moving Right)");
             }
-            //redrawSnake(snakeBody2); // redraw
+            redrawSnake(snakeBody2); // redraw
         }
         // otherwise:
         if (isSnake1Dead && isSnake2Dead){
@@ -262,7 +264,8 @@ public class MainClass extends GraphicsProgram implements ActionListener
 
     private void updateScoreboard(){
         remove(scoreLabel);
-        scoreLabel = new Scoreboard("SCORE \n Snake#1: " + score1 + "\n Snake#2: " + score2, 10, 15);
+        scoreLabel = new Scoreboard("SCORE \n PINK: " + score1 + "\n BLUE: " + score2, 10, 15);
+        scoreLabel.setColor(Color.white);
         add(scoreLabel);
 
     }
@@ -335,7 +338,7 @@ public class MainClass extends GraphicsProgram implements ActionListener
             return true;
         }
         else {
-            System.out.println("MISSES ball");
+            System.out.println("misses ball");
             return false;
         }
     }
@@ -343,16 +346,29 @@ public class MainClass extends GraphicsProgram implements ActionListener
     public boolean hitsEitherSnake(ArrayList<GRect> snakeBody, ArrayList<GRect> otherSnakeBody){
         boolean check = false;
         for (int i = 1; i < otherSnakeBody.size(); i++){
-            if (snakeBody.get(0).getLocation() == otherSnakeBody.get(i).getLocation()){
+            if (snakeBody.get(0).getLocation().equals(otherSnakeBody.get(i).getLocation())){
                 check = true;
                 break;
             }
+        }
+        if (check){
+            System.out.println("HITS eitherSnake");
+        }
+        else{
+            System.out.println("misses eitherSnake");
         }
         return check;
     }
 
     public boolean hitsWall(ArrayList<GRect> snakeBody){
-        return snakeBody.get(0).getX() == 0 || snakeBody.get(0).getX() == getGCanvas().getWidth() || snakeBody.get(0).getY() == 0 || snakeBody.get(0).getY() == getGCanvas().getHeight();
+        if (snakeBody.get(0).getX() < 0 || snakeBody.get(0).getX() > getGCanvas().getWidth() || snakeBody.get(0).getY() < 0 || snakeBody.get(0).getY() > getGCanvas().getHeight()){
+            System.out.println("HITS wall");
+            return true;
+        }
+        else{
+            System.out.println("misses wall");
+            return false;
+        }
     }
 
     public void snakeDies(ArrayList<GRect> snakeBody){
@@ -371,34 +387,30 @@ public class MainClass extends GraphicsProgram implements ActionListener
         }
     }
 
-    public boolean isGameOver(){
-        return isSnake1Dead && isSnake2Dead;
-    }
-
     public void gameOver(){
         System.out.println("Game over.");
 
-        GRect scoreboard = new GRect(getGCanvas().getWidth()/2, getGCanvas().getHeight()/2, 400, 100);
+        GRect scoreboard = new GRect(160, getGCanvas().getHeight()/2 - 50, 400, 100);
         scoreboard.setColor(Color.black);
         scoreboard.setFillColor(Color.gray);
         scoreboard.setFilled(true);
         add(scoreboard);
 
-        GLabel scoreResults = new GLabel("Final Score" + "\nSnake#1: " + score1+ "\n Snake#2: " + score2, getGCanvas().getWidth()/2, getGCanvas().getHeight()/2);
+        GLabel scoreResults = new GLabel("Final Score: " + "\nPINK: " + score1+ "\n BLUE: " + score2, 250, getGCanvas().getHeight()/2);
         scoreResults.setColor(Color.white);
         add(scoreResults);
 
         String text = "";
         if (score1>score2){
-            text = "SNAKE#1 WINS";
+            text = "PINK WINS";
         }
         else if (score2>score1){
-            text = "SNAKE#2 WINS";
+            text = "BLUE WINS";
         }
         else {
             text = "DRAW";
         }
-        GLabel results = new GLabel(text, getGCanvas().getWidth()/2, getGCanvas().getHeight()/2 + 20);
+        GLabel results = new GLabel(text, getGCanvas().getWidth()/2 - 20, getGCanvas().getHeight()/2 + 20);
         results.setColor(Color.white);
         add(results);
     }
